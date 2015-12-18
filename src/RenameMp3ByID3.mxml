@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+                       height="180" width="300" showStatusBar="false" title="{appName}">
+    <fx:Script><![CDATA[
+        import com.plter.renamemp3byid3.RenameTask;
+
+        private var srcMp3Dir:File = null;
+        private var distMp3Dir:File = null;
+
+        [Bindable]
+        private var appName:String = "MP3批量重命名工具";
+
+        [Bindable]
+        private var currentInfoMsg:String = "";
+
+        private function btnBrowseForDir_clickHandler(event:MouseEvent):void {
+            srcMp3Dir = new File();
+            srcMp3Dir.addEventListener(Event.SELECT, function (e:Event):void {
+                tiMp3Dir.text = srcMp3Dir.nativePath;
+            });
+            srcMp3Dir.addEventListener(Event.CANCEL, function (e:Event):void {
+                srcMp3Dir = null;
+            });
+            srcMp3Dir.browseForDirectory("请选择一个包含mp3文件的目录");
+        }
+
+        private function btnStartRename_clickHandler(event:MouseEvent):void {
+            if (!srcMp3Dir) {
+                currentInfoMsg = "未选择来源目录";
+                return;
+            }
+            if (!distMp3Dir) {
+                currentInfoMsg = "未选择目标目录";
+                return;
+            }
+
+            currentInfoMsg = "正在重命名";
+            new RenameTask(srcMp3Dir, distMp3Dir, function ():void {
+                currentInfoMsg = "重命名完成";
+            }, function (progress:Number):void {
+                currentInfoMsg = "正在重命名 " + (progress * 100).toFixed(2) + "%";
+            }).startRename();
+        }
+
+        private function btnBrowseForDistDir_clickHandler(event:MouseEvent):void {
+            distMp3Dir = new File();
+            distMp3Dir.addEventListener(Event.SELECT, function (e:Event):void {
+                tiMp3DistDir.text = distMp3Dir.nativePath;
+            });
+            distMp3Dir.addEventListener(Event.CANCEL, function (e:Event):void {
+                distMp3Dir = null;
+            });
+            distMp3Dir.browseForDirectory("请选择目标文件目录");
+        }
+        ]]></fx:Script>
+
+
+    <s:layout>
+        <s:VerticalLayout paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5"/>
+    </s:layout>
+
+    <s:Label fontSize="26" text="{appName}" width="100%" textAlign="center"/>
+
+    <s:HGroup width="100%" verticalAlign="middle">
+        <s:Label text="来源目录"/>
+        <s:TextInput width="100%" id="tiMp3Dir" editable="false"/>
+        <s:Button label="浏览" id="btnBrowseForDir" click="btnBrowseForDir_clickHandler(event)"/>
+    </s:HGroup>
+    <s:HGroup width="100%" verticalAlign="middle">
+        <s:Label text="目标目录"/>
+        <s:TextInput width="100%" id="tiMp3DistDir" editable="false"/>
+        <s:Button label="浏览" id="btnBrowseForDistDir" click="btnBrowseForDistDir_clickHandler(event)"/>
+    </s:HGroup>
+    <s:Button width="100%" label="开始重命名" id="btnStartRename" click="btnStartRename_clickHandler(event)"/>
+
+    <s:Label width="100%" id="labelMsg" color="red" textAlign="center" text="{currentInfoMsg}"/>
+</s:WindowedApplication>
