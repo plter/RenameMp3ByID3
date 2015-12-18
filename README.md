@@ -1,0 +1,2 @@
+# RenameMp3ByID3
+根据mp3的id3信息批量重命名指定目录下的所有mp3文件
